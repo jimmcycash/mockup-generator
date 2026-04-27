@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup Generator — Merch'd Apparel</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #E8793A;
+      --dark:   #1a202c;
+      --bg:     #f7f8fa;
+      --card:   #ffffff;
+      --border: #e2e8f0;
+      --text:   #2d3748;
+      --muted:  #718096;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--dark);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    header img { height: 36px; object-fit: contain; }
+    header span {
+      color: rgba(255,255,255,.55);
+      font-size: 13px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Layout ── */
+    .app {
+      display: grid;
+      grid-template-columns: 40% 60%;
+      gap: 0;
+      height: calc(100vh - 65px);
+    }
+
+    /* ── Left panel ── */
+    .left {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .step-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    /* Category tabs */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 6px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+      transition: all .15s;
+    }
+    .tab:hover { border-color: var(--orange); color: var(--orange); }
+    .tab.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+    /* Product grid */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+    }
+    .product-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s;
+      background: var(--bg);
+    }
+    .product-card:hover { border-color: var(--orange); transform: translateY(-2px); }
+    .product-card.selected { border-color: var(--orange); background: #fff7f3; }
+    .product-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #eee;
+    }
+    .product-card .pname {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 5px;
+      line-height: 1.3;
+      color: var(--text);
+    }
+    .product-card .pstyle {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Color swatches */
+    .swatches {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .swatch {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s;
+      position: relative;
+    }
+    .swatch:hover { transform: scale(1.15); }
+    .swatch.selected { border-color: var(--orange); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--orange); }
+    .swatch[data-color="WHITE"] { border-color: #ccc; }
+    .swatch[data-color="CAMO"] { background: linear-gradient(135deg,#4a5e3a 0%,#6b7c4f 30%,#8a9a6a 60%,#4a5e3a 100%); }
+
+    /* View buttons */
+    .view-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .view-btn {
+      padding: 7px 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+      transition: all .15s;
+    }
+    .view-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .view-btn.active { background: var(--dark); border-color: var(--dark); color: #fff; }
+
+    /* Logo upload */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      background: var(--bg);
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--orange);
+      background: #fff7f3;
+    }
+    .drop-zone .dz-icon { font-size: 28px; margin-bottom: 6px; }
+    .drop-zone .dz-text { font-size: 13px; color: var(--muted); }
+    .drop-zone .dz-text strong { color: var(--orange); }
+    .drop-zone .dz-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    #logo-input { display: none; }
+
+    /* Slider */
+    .slider-wrap { display: flex; align-items: center; gap: 10px; }
+    .slider-wrap label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .slider-wrap input[type=range] {
+      flex: 1;
+      accent-color: var(--orange);
+      cursor: pointer;
+    }
+    .slider-wrap .slider-val { font-size: 13px; color: var(--muted); width: 38px; text-align: right; }
+
+    /* Action buttons */
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s, transform .1s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-orange { background: var(--orange); color: #fff; }
+    .btn-dark { background: var(--dark); color: #fff; margin-top: 8px; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* ── Right panel ── */
+    .right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e9ecef;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 700px;
+      aspect-ratio: 1;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.12);
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: default;
+    }
+    canvas.dragging { cursor: grabbing; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .app { grid-template-columns: 1fr; height: auto; }
+      .left { max-height: 60vh; }
+      .right { min-height: 55vw; }
+      .canvas-wrap { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="https://raw.githubusercontent.com/jimmcycash/merchd-setup/main/merchd-logo-dark.png"
+       alt="Merch'd"
+       onerror="this.style.display='none'; document.getElementById('header-fallback').style.display='block'">
+  <span id="header-fallback" style="display:none;color:#fff;font-size:22px;font-weight:800;letter-spacing:.02em;">MERCH'D</span>
+  <span>Mockup Generator</span>
+</header>
+
+<div class="app">
+  <!-- ── LEFT PANEL ── -->
+  <div class="left">
+
+    <!-- Step 1: Product -->
+    <div class="step">
+      <div class="step-label">Step 1 — Choose a Product</div>
+      <div class="tabs" id="cat-tabs">
+        <button class="tab active" data-cat="all">All</button>
+        <button class="tab" data-cat="hats">Hats</button>
+        <button class="tab" data-cat="polos">Polos</button>
+        <button class="tab" data-cat="tees">Tees</button>
+        <button class="tab" data-cat="hoodies">Hoodies</button>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="product-grid" id="product-grid"></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Color -->
+    <div class="step" id="step-color" style="display:none;">
+      <div class="step-label">Step 2 — Pick a Color</div>
+      <div class="swatches" id="swatches"></div>
+    </div>
+
+    <!-- Step 3: View -->
+    <div class="step" id="step-view" style="display:none;">
+      <div class="step-label">Step 3 — Select View</div>
+      <div class="view-btns" id="view-btns"></div>
+    </div>
+
+    <!-- Step 4: Logo -->
+    <div class="step" id="step-logo" style="display:none;">
+      <div class="step-label">Step 4 — Upload Your Logo</div>
+      <div class="drop-zone" id="drop-zone">
+        <div class="dz-icon">🖼️</div>
+        <div class="dz-text"><strong>Click to browse</strong> or drag & drop</div>
+        <div class="dz-hint">PNG, JPG, SVG · Best results: PNG with transparent background</div>
+      </div>
+      <input type="file" id="logo-input" accept="image/png,image/jpeg,image/svg+xml" />
+
+      <div style="margin-top:16px;">
+        <div class="step-label">Logo Size</div>
+        <div class="slider-wrap">
+          <label>50%</label>
+          <input type="range" id="size-slider" min="50" max="150" value="100" />
+          <span class="slider-val" id="slider-val">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="step" id="step-actions" style="display:none;">
+      <button class="btn btn-orange" id="btn-download">⬇ Download Mockup</button>
+      <a class="btn btn-dark" href="mailto:info@merchd.co?subject=Mockup+Quote+Request">✉️ Request a Quote</a>
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right">
+    <div class="canvas-wrap">
+      <canvas id="canvas" width="800" height="800"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  Product catalog
+// ═══════════════════════════════════════════════════════════════
+const PRODUCTS = [
+  // Hats
+  {
+    id: 'TMB602', name: 'Richardson Trucker Hat', category: 'hats',
+    size: 'OSFA', views: ['front','back','side'],
+    colors: ['BLACK','WHITE','NAVY','CAMO'],
+    zones: {
+      front: {x:0.35, y:0.38, w:0.30, h:0.22},
+      back:  {x:0.30, y:0.35, w:0.40, h:0.25},
+      side:  null
+    }
+  },
+  {
+    id: 'CP80', name: 'Port & Company Snapback', category: 'hats',
+    size: 'OSFA', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE'],
+    zones: {
+      front: {x:0.33, y:0.35, w:0.34, h:0.24},
+      back:  null
+    }
+  },
+  {
+    id: 'C112', name: 'Port Authority Snapback', category: 'hats',
+    size: 'OSFA', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE','RED'],
+    zones: {
+      front: {x:0.33, y:0.35, w:0.34, h:0.24},
+      back:  null
+    }
+  },
+  // Polos
+  {
+    id: 'K500', name: 'Port Authority Silk Touch Polo', category: 'polos',
+    size: 'M', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE','RED'],
+    zones: {
+      front: {x:0.55, y:0.22, w:0.18, h:0.14},
+      back:  {x:0.28, y:0.18, w:0.44, h:0.30}
+    }
+  },
+  {
+    id: 'K600', name: 'Port Authority EZPerformance Polo', category: 'polos',
+    size: 'M', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE'],
+    zones: {
+      front: {x:0.55, y:0.22, w:0.18, h:0.14},
+      back:  null
+    }
+  },
+  // Tees
+  {
+    id: 'PC61', name: 'Port & Company Essential Tee', category: 'tees',
+    size: 'M', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE','RED'],
+    zones: {
+      front: {x:0.30, y:0.22, w:0.40, h:0.30},
+      back:  {x:0.28, y:0.20, w:0.44, h:0.32}
+    }
+  },
+  {
+    id: 'PC55', name: 'Port & Company Core Blend Tee', category: 'tees',
+    size: 'M', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE'],
+    zones: {
+      front: {x:0.30, y:0.22, w:0.40, h:0.30},
+      back:  {x:0.28, y:0.20, w:0.44, h:0.32}
+    }
+  },
+  {
+    id: 'PC450', name: 'Port & Company Fan Favorite Tee', category: 'tees',
+    size: 'M', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE'],
+    zones: {
+      front: {x:0.30, y:0.22, w:0.40, h:0.30},
+      back:  {x:0.28, y:0.20, w:0.44, h:0.32}
+    }
+  },
+  // Hoodies
+  {
+    id: 'PC90H', name: 'Port & Company Hoodie', category: 'hoodies',
+    size: 'M', views: ['front','back'],
+    colors: ['BLACK','NAVY','WHITE'],
+    zones: {
+      front: {x:0.30, y:0.25, w:0.40, h:0.28},
+      back:  {x:0.28, y:0.18, w:0.44, h:0.30}
+    }
+  }
+];
+
+const COLOR_HEX = {
+  BLACK: '#1a1a1a', WHITE: '#f5f5f5', NAVY: '#1c3163',
+  RED: '#c0392b', CAMO: 'camo'
+};
+
+const PROXY = 'https://corsproxy.io/?url=';
+
+function sanmarUrl(style, color, size, view) {
+  return `${PROXY}https://cdnm.sanmar.com/medias/${style}-${color}-${size}-${view}.jpg`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════════════════
+let state = {
+  category: 'all',
+  product: null,
+  color: null,
+  view: null,
+  logoImg: null,
+  logoScale: 1.0,
+  logo: { x: 0, y: 0, w: 0, h: 0 },   // canvas-pixel coords
+  productImg: null,
+  dragging: false,
+  dragOffX: 0, dragOffY: 0,
+  proxyFailed: false
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  Canvas setup
+// ═══════════════════════════════════════════════════════════════
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 800, H = 800;
+
+// ═══════════════════════════════════════════════════════════════
+//  Render loop
+// ═══════════════════════════════════════════════════════════════
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Checkerboard background
+  ctx.fillStyle = '#f0f0f0';
+  ctx.fillRect(0, 0, W, H);
+  drawCheckerboard();
+
+  // Product image
+  if (state.productImg) {
+    ctx.drawImage(state.productImg, 0, 0, W, H);
+  }
+
+  // Placement zone hint or logo
+  const product = state.product;
+  const view = state.view;
+  const zone = product && view ? product.zones[view] : null;
+
+  if (!state.logoImg && zone) {
+    // Dashed placement zone
+    const zx = zone.x * W, zy = zone.y * H;
+    const zw = zone.w * W, zh = zone.h * H;
+    ctx.save();
+    ctx.setLineDash([10, 6]);
+    ctx.strokeStyle = 'rgba(232,121,58,0.55)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(zx, zy, zw, zh);
+    ctx.restore();
+
+    // Placeholder text
+    ctx.save();
+    ctx.fillStyle = 'rgba(232,121,58,0.8)';
+    ctx.font = 'bold 16px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Upload your logo to get started', W / 2, H / 2);
+    ctx.restore();
+  } else if (!state.logoImg && !state.productImg) {
+    ctx.save();
+    ctx.fillStyle = '#a0aec0';
+    ctx.font = 'bold 20px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Select a product to begin', W / 2, H / 2);
+    ctx.restore();
+  }
+
+  // Logo
+  if (state.logoImg) {
+    ctx.drawImage(state.logoImg, state.logo.x, state.logo.y, state.logo.w, state.logo.h);
+  }
+}
+
+function drawCheckerboard() {
+  const size = 20;
+  for (let y = 0; y < H; y += size) {
+    for (let x = 0; x < W; x += size) {
+      ctx.fillStyle = (Math.floor(x / size) + Math.floor(y / size)) % 2 === 0
+        ? '#e8e8e8' : '#f0f0f0';
+      ctx.fillRect(x, y, size, size);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Logo positioning helpers
+// ═══════════════════════════════════════════════════════════════
+function resetLogoPosition() {
+  if (!state.logoImg || !state.product || !state.view) return;
+  const zone = state.product.zones[state.view];
+  if (!zone) return;
+
+  const logoAR = state.logoImg.width / state.logoImg.height;
+  const zoneW = zone.w * W * state.logoScale;
+  const zoneH = zone.h * H * state.logoScale;
+
+  let lw, lh;
+  if (logoAR >= 1) {
+    lw = Math.min(zoneW, zone.w * W);
+    lh = lw / logoAR;
+  } else {
+    lh = Math.min(zoneH, zone.h * H);
+    lw = lh * logoAR;
+  }
+
+  lw *= state.logoScale;
+  lh *= state.logoScale;
+
+  const cx = (zone.x + zone.w / 2) * W;
+  const cy = (zone.y + zone.h / 2) * H;
+
+  state.logo = { x: cx - lw / 2, y: cy - lh / 2, w: lw, h: lh };
+}
+
+function applyLogoScale(newScale) {
+  if (!state.logoImg) return;
+  const oldScale = state.logoScale;
+  state.logoScale = newScale;
+
+  const cx = state.logo.x + state.logo.w / 2;
+  const cy = state.logo.y + state.logo.h / 2;
+
+  const ratio = newScale / oldScale;
+  const nw = state.logo.w * ratio;
+  const nh = state.logo.h * ratio;
+  state.logo = { x: cx - nw / 2, y: cy - nh / 2, w: nw, h: nh };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Product loading
+// ═══════════════════════════════════════════════════════════════
+function loadProductImage() {
+  if (!state.product || !state.color || !state.view) return;
+  state.productImg = null;
+  render();
+
+  const url = sanmarUrl(state.product.id, state.color, state.product.size, state.view);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    state.productImg = img;
+    state.proxyFailed = false;
+    if (state.logoImg) resetLogoPosition();
+    render();
+  };
+  img.onerror = () => {
+    // corsproxy may have failed — show fallback
+    state.proxyFailed = true;
+    state.productImg = null;
+    ctx.clearRect(0, 0, W, H);
+    drawCheckerboard();
+    ctx.fillStyle = '#e53e3e';
+    ctx.font = '16px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('⚠ Could not load product image (proxy issue)', W / 2, H / 2 - 12);
+    ctx.fillStyle = '#718096';
+    ctx.font = '13px system-ui';
+    ctx.fillText('Try clicking the product again or check your connection', W / 2, H / 2 + 14);
+  };
+  img.src = url;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  UI rendering
+// ═══════════════════════════════════════════════════════════════
+function renderProductGrid() {
+  const grid = document.getElementById('product-grid');
+  const filtered = state.category === 'all'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.category === state.category);
+
+  grid.innerHTML = '';
+  filtered.forEach(p => {
+    const thumbColor = p.colors[0];
+    const thumbUrl = sanmarUrl(p.id, thumbColor, p.size, 'front');
+
+    const card = document.createElement('div');
+    card.className = 'product-card' + (state.product?.id === p.id ? ' selected' : '');
+    card.innerHTML = `
+      <img src="${thumbUrl}" alt="${p.name}" onerror="this.style.background='#ddd'">
+      <div class="pname">${p.name}</div>
+      <div class="pstyle">${p.id}</div>
+    `;
+    card.addEventListener('click', () => selectProduct(p));
+    grid.appendChild(card);
+  });
+}
+
+function renderColorSwatches() {
+  const cont = document.getElementById('swatches');
+  cont.innerHTML = '';
+  if (!state.product) return;
+
+  state.product.colors.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch' + (state.color === c ? ' selected' : '');
+    sw.dataset.color = c;
+    sw.title = c.charAt(0) + c.slice(1).toLowerCase();
+    if (c === 'CAMO') {
+      sw.style.background = 'linear-gradient(135deg,#4a5e3a 0%,#6b7c4f 30%,#8a9a6a 60%,#4a5e3a 100%)';
+    } else {
+      sw.style.background = COLOR_HEX[c] || '#999';
+    }
+    sw.addEventListener('click', () => selectColor(c));
+    cont.appendChild(sw);
+  });
+}
+
+function renderViewButtons() {
+  const cont = document.getElementById('view-btns');
+  cont.innerHTML = '';
+  if (!state.product) return;
+
+  state.product.views.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'view-btn' + (state.view === v ? ' active' : '');
+    btn.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+    btn.addEventListener('click', () => selectView(v));
+    cont.appendChild(btn);
+  });
+}
+
+function showStep(id, visible) {
+  document.getElementById(id).style.display = visible ? '' : 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Selection handlers
+// ═══════════════════════════════════════════════════════════════
+function selectCategory(cat) {
+  state.category = cat;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.cat === cat);
+  });
+  renderProductGrid();
+}
+
+function selectProduct(p) {
+  state.product = p;
+  state.color = p.colors[0];
+  state.view = p.views[0];
+  state.productImg = null;
+  state.logoImg = null;
+  state.logo = {};
+
+  renderProductGrid();
+  renderColorSwatches();
+  renderViewButtons();
+
+  showStep('step-color', true);
+  showStep('step-view', true);
+  showStep('step-logo', true);
+  showStep('step-actions', true);
+
+  document.getElementById('drop-zone').innerHTML = `
+    <div class="dz-icon">🖼️</div>
+    <div class="dz-text"><strong>Click to browse</strong> or drag & drop</div>
+    <div class="dz-hint">PNG, JPG, SVG · Best results: PNG with transparent background</div>
+  `;
+
+  loadProductImage();
+}
+
+function selectColor(c) {
+  state.color = c;
+  renderColorSwatches();
+  loadProductImage();
+}
+
+function selectView(v) {
+  state.view = v;
+  renderViewButtons();
+  loadProductImage();
+  if (state.logoImg) resetLogoPosition();
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  Logo upload
+// ═══════════════════════════════════════════════════════════════
+function handleLogoFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      state.logoImg = img;
+      state.logoScale = 1.0;
+      document.getElementById('size-slider').value = 100;
+      document.getElementById('slider-val').textContent = '100%';
+      resetLogoPosition();
+      render();
+
+      // Update drop zone
+      document.getElementById('drop-zone').innerHTML = `
+        <div class="dz-icon">✅</div>
+        <div class="dz-text"><strong>${file.name}</strong></div>
+        <div class="dz-hint">Click to replace</div>
+      `;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('drop-zone').addEventListener('click', () => {
+  document.getElementById('logo-input').click();
+});
+
+document.getElementById('logo-input').addEventListener('change', (e) => {
+  handleLogoFile(e.target.files[0]);
+});
+
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  handleLogoFile(e.dataTransfer.files[0]);
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  Logo resize slider
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('size-slider').addEventListener('input', (e) => {
+  const pct = parseInt(e.target.value, 10);
+  document.getElementById('slider-val').textContent = pct + '%';
+  applyLogoScale(pct / 100);
+  render();
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  Canvas drag-to-reposition
+// ═══════════════════════════════════════════════════════════════
+function canvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  const scaleY = H / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top)  * scaleY
+  };
+}
+
+function isOverLogo(cx, cy) {
+  if (!state.logoImg) return false;
+  return cx >= state.logo.x && cx <= state.logo.x + state.logo.w &&
+         cy >= state.logo.y && cy <= state.logo.y + state.logo.h;
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  const {x, y} = canvasCoords(e);
+  if (isOverLogo(x, y)) {
+    state.dragging = true;
+    state.dragOffX = x - state.logo.x;
+    state.dragOffY = y - state.logo.y;
+    canvas.classList.add('dragging');
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const {x, y} = canvasCoords(e);
+  if (state.dragging) {
+    state.logo.x = x - state.dragOffX;
+    state.logo.y = y - state.dragOffY;
+    render();
+  } else {
+    canvas.style.cursor = isOverLogo(x, y) ? 'grab' : 'default';
+  }
+});
+
+canvas.addEventListener('mouseup', () => {
+  state.dragging = false;
+  canvas.classList.remove('dragging');
+});
+canvas.addEventListener('mouseleave', () => {
+  state.dragging = false;
+  canvas.classList.remove('dragging');
+});
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const {x, y} = canvasCoords(e);
+  if (isOverLogo(x, y)) {
+    state.dragging = true;
+    state.dragOffX = x - state.logo.x;
+    state.dragOffY = y - state.logo.y;
+  }
+}, {passive: false});
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!state.dragging) return;
+  const {x, y} = canvasCoords(e);
+  state.logo.x = x - state.dragOffX;
+  state.logo.y = y - state.dragOffY;
+  render();
+}, {passive: false});
+
+canvas.addEventListener('touchend', () => { state.dragging = false; });
+
+// ═══════════════════════════════════════════════════════════════
+//  Download
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('btn-download').addEventListener('click', () => {
+  const name = state.product ? state.product.name : 'product';
+  const color = state.color || 'color';
+  const filename = `${name}-${color}-mockup.png`
+    .replace(/[^a-z0-9\-\.]/gi, '-').replace(/-+/g, '-');
+
+  if (state.proxyFailed || !state.productImg) {
+    // If corsproxy failed, open canvas as-is (logo + no bg) or warn
+    alert('Product image failed to load via proxy. Download may not include the product background.\n\nTry refreshing the product by reselecting it.');
+    return;
+  }
+
+  // Re-render at full res to ensure clean output
+  render();
+
+  try {
+    const dataURL = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataURL;
+    a.download = filename;
+    a.click();
+  } catch (err) {
+    // CORS error — open in new tab as fallback
+    alert('Canvas is tainted by cross-origin images. Opening in new tab instead.\n\nRight-click → Save Image As to download.');
+    window.open(canvas.toDataURL('image/png'));
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  Category tabs
+// ═══════════════════════════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => selectCategory(tab.dataset.cat));
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  Init
+// ═══════════════════════════════════════════════════════════════
+renderProductGrid();
+render();
+</script>
+</body>
+</html>
